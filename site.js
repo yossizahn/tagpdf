@@ -564,7 +564,7 @@ function buildMenus() {
   // checked, key, submenu]. File ends in the TAG.INI macros, as Tag appends them.
   const M = t("menu");
   const items = {
-    0: [["newText", M.newText, undefined, "Ctrl+N"], [null, M.open, undefined, "Ctrl+O"], [null, M.save, undefined, "Ctrl+S"], [null, M.saveAs],
+    0: [["newText", M.newText, undefined, "Alt+N"], [null, M.open, undefined, "Ctrl+O"], [null, M.save, undefined, "Ctrl+S"], [null, M.saveAs],
       [null, M.saveAll, undefined, "", true], [null, M.closeAll, undefined, "", true], null,
       [null, M.chdir, undefined, "F7"], [null, M.imp, undefined, "Ctrl+I"], [null, M.exp], [null, M.rename], null,
       [null, M.preview, undefined, "F9"], ["printSetup", M.printSetup], [null, M.prefs], null,
@@ -1290,7 +1290,8 @@ document.addEventListener("keydown", (e) => {
     if (!layer.querySelector(".dlg,.msg")) ACTS.run();
     return;
   }
-  if (e.ctrlKey && !e.altKey && !e.shiftKey && e.code === "KeyN") {
+  // Alt+N or Ctrl+N: File > New text (the browser keeps Ctrl+N for itself, so Alt+N is the sure one)
+  if ((e.ctrlKey !== e.altKey) && !e.shiftKey && e.code === "KeyN") {
     e.preventDefault();
     if (!layer.querySelector(".dlg,.msg")) newTextDialog();
     return;
@@ -1703,6 +1704,22 @@ if (location.hash === "#measure") {
     const after = [c.el.offsetWidth, c.el.offsetHeight, c.el.offsetLeft, c.el.offsetTop];
     if (after[0] !== before[0] || after[1] !== before[1] || after[2] !== before[2] + 50 || after[3] !== before[3] + 30) out.push({ drag: l, before, after });
   }
+  // the menus' keys line up at the menu's end edge (right in English, left in Hebrew)
+  for (const l of ["en", "he"]) {
+    lang = l; buildFrame();
+    const pull = document.querySelector("#menubar .top .pull");
+    pull.parentElement.classList.add("open");
+    const pr = pull.getBoundingClientRect();
+    const keys = [...pull.querySelectorAll(".key")].filter((k) => k.textContent).map((k) => k.getBoundingClientRect());
+    const edges = keys.map((r) => Math.round(l === "en" ? pr.right - r.right : r.left - pr.left));
+    if (new Set(edges).size !== 1 || edges[0] > 24) out.push({ menuKeys: l, edges });
+    pull.parentElement.classList.remove("open");
+  }
+  // Alt+N opens File > New text
+  document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyN", key: "n", altKey: true, bubbles: true }));
+  const nt = layer.querySelector(".newtextdlg");
+  if (!nt) out.push({ altN: "no New text box" });
+  nt?.remove(); layerState();
   // the frontmost text stays the active one when the focus goes elsewhere: the caret on a later
   // line, the focus in the command line, three clicks on the status bar: Line is still that line
   (async () => {

@@ -195,10 +195,11 @@ button.close { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .droplist .code { font: bold 11px Tahoma, sans-serif; min-width: 14px; }
 .droplist .pil { color: #80bcff; font-weight: bold; }
 .instr .combo .field { overflow: hidden; white-space: nowrap; }
-/* the menu's key column and submenu arrow, as Tag's menus (the key right-aligned; mirrored in Hebrew) */
-.pull button { display: grid; grid-template-columns: 1fr auto 10px; gap: 0 18px; }
+/* the menu's key column and submenu arrow, as Tag's menus: the keys end at the menu's end edge, 20 px in
+   (right in English, left in Hebrew), the arrow in that margin */
+.pull button { display: grid; grid-template-columns: 1fr auto; gap: 0 24px; }
 .pull .key { color: inherit; text-align: end; direction: ltr; }
-.pull .sub { width: 0; height: 0; align-self: center; justify-self: end; border-block: 4px solid transparent; border-inline-start: 4px solid currentColor; }
+.pull .sub { position: absolute; inset-inline-end: 8px; top: 50%; margin-top: -4px; width: 0; height: 0; border-block: 4px solid transparent; border-inline-start: 4px solid currentColor; }
 .status { cursor: default; }
 
 /* status bar: white; the fields at the language's start, the path at its end, cm at the right */
