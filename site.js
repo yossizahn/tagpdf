@@ -204,6 +204,7 @@ const ACTS = {
     for (const k of kids) k.doc.classList.toggle("see", seeCommands);
     buildMenus();
     drawCaret();
+    drawSelections();
   },
   newText() { newTextDialog(); },
   run() { runCommand(document.getElementById("cmd").value); },
@@ -836,7 +837,81 @@ document.addEventListener("selectionchange", () => {
   }
   statusUpdate();
   drawCaret();
+  if (active) drawSelection(active);
 });
+
+// Tag's selection: one region, inverted. Per selected line a
+// band from the line's highest ascent to its descent, running on to the next selected line so
+// the bands touch; a line selected from its start reaches the window's start edge (left, or right
+// on a right-to-left line); a line the selection runs past reaches its last character, or the
+// window's far edge when it ends its paragraph; the last line stops at the selection's end. The
+// active window inverts (white, difference); another text window keeps its selection inverted
+// and XORed with #101010 (#efefef, difference). The browser's own highlight is transparent.
+const BLOCKS = "h1, h2, p, li, .note";
+// true: every line the selection runs past is inverted to the window's edge; false: Tag's rule
+// (to the line's last character, the window's edge only at a paragraph's end)
+const SEL_TO_EDGE = true;
+function lineGroups(rects) {
+  const g = [];
+  for (const x of [...rects].filter((r) => r.height > 4 && r.width > 0).sort((a, b) => a.top - b.top)) {
+    const last = g.at(-1);
+    if (last && x.top < last.bottom - 2) { last.left = Math.min(last.left, x.left); last.right = Math.max(last.right, x.right); last.top = Math.min(last.top, x.top); last.bottom = Math.max(last.bottom, x.bottom); }
+    else g.push({ left: x.left, right: x.right, top: x.top, bottom: x.bottom });
+  }
+  return g;
+}
+function drawSelection(c) {
+  if (!c?.selLayer) return;
+  const s = textSelection(c);
+  const bands = [];
+  if (s && s.rangeCount && !s.isCollapsed) {
+    const sel = s.getRangeAt(0);
+    const t = c.text.getBoundingClientRect();
+    const W = c.text.clientWidth;
+    for (const b of c.doc.querySelectorAll(BLOCKS)) {
+      if (b.querySelector(BLOCKS) || b.closest(".cta")) continue;          // leaf paragraphs only
+      const whole = document.createRange();
+      whole.selectNodeContents(b);
+      if (sel.compareBoundaryPoints(Range.END_TO_START, whole) >= 0 || sel.compareBoundaryPoints(Range.START_TO_END, whole) <= 0) continue;
+      const part = whole.cloneRange();
+      const fromStart = sel.compareBoundaryPoints(Range.START_TO_START, whole) <= 0;
+      const pastEnd = sel.compareBoundaryPoints(Range.END_TO_END, whole) >= 0;
+      if (!fromStart) part.setStart(sel.startContainer, sel.startOffset);
+      if (!pastEnd) part.setEnd(sel.endContainer, sel.endOffset);
+      const lines = lineGroups(whole.getClientRects());
+      let picked = lineGroups(part.getClientRects());
+      const rtl = getComputedStyle(b).direction === "rtl";
+      if (!picked.length && pastEnd) {
+        // an empty paragraph the selection runs through: its line, across the width
+        const r = b.getBoundingClientRect();
+        picked = [{ left: rtl ? r.right : r.left, right: rtl ? r.right : r.left, top: r.top, bottom: r.bottom }];
+      }
+      picked.forEach((g, j) => {
+        const mid = (g.top + g.bottom) / 2;
+        const k = lines.findIndex((l) => l.top <= mid && l.bottom >= mid);
+        const line = lines[k] || g;
+        const atStart = j > 0 || fromStart || (rtl ? Math.abs(g.right - line.right) < 1.5 : Math.abs(g.left - line.left) < 1.5);
+        const goesOn = j < picked.length - 1 || pastEnd;
+        const hardEnd = k === lines.length - 1 || k < 0;
+        let l = g.left - t.left, r = g.right - t.left;
+        if (rtl) {
+          if (atStart) r = W;
+          if (goesOn) l = hardEnd || SEL_TO_EDGE ? 0 : line.left - t.left;
+        } else {
+          if (atStart) l = 0;
+          if (goesOn) r = hardEnd || SEL_TO_EDGE ? W : line.right - t.left;
+        }
+        bands.push({ l, r, top: Math.min(g.top, line.top) - t.top + c.text.scrollTop, bottom: Math.max(g.bottom, line.bottom) - t.top + c.text.scrollTop, goesOn });
+      });
+    }
+  }
+  bands.sort((a, b) => a.top - b.top);
+  // a band that runs on reaches down to the next one: no white gap between selected lines
+  bands.forEach((b, i) => { if (b.goesOn && bands[i + 1]) b.bottom = Math.max(b.bottom, bands[i + 1].top); });
+  c.selLayer.classList.toggle("inactive", c !== active);
+  c.selLayer.replaceChildren(...bands.map((b) => el("div", { style: { left: b.l + "px", top: b.top + "px", width: Math.max(0, b.r - b.l) + "px", height: Math.max(0, b.bottom - b.top) + "px" } })));
+}
+function drawSelections() { for (const k of kids) drawSelection(k); }
 
 // the child's selection: the live one while it is in its text, else the one it kept
 function textSelection(c = active) {
@@ -940,13 +1015,20 @@ function drawCaret() {
   const t = text.getBoundingClientRect();
   let x = box.left - t.left + text.scrollLeft;
   let y = top - t.top + text.scrollTop, h = bottom - top;
+  const fs = parseFloat(getComputedStyle(node).fontSize);
+  const baseline = Math.round(box.top + box.height - 0.207 * fs - t.top + text.scrollTop);   // Tahoma's descent
+  const tri = atEnd ? null : caretTriangle(sel.focusNode, sel.focusOffset, node);
   if (atEnd) {
-    const fs = parseFloat(getComputedStyle(node).fontSize);
-    const baseline = box.top + box.height - 0.207 * fs - t.top + text.scrollTop;   // Tahoma's descent
     if (rtlHere) x -= 6;
-    y = Math.round(baseline) - 6; h = 6;
+    y = baseline - 6; h = 6;
+  } else if (tri) {
+    // Tag's LCARET / RCARET: 4 x 5, the top row on the baseline; ◀ at x-4..x-1, ▶ at x..x+3
+    if (tri === "lc") x -= 4;
+    y = baseline; h = 5;
   } else x -= 1;
   caretEl.classList.toggle("end", atEnd);
+  caretEl.classList.toggle("lc", tri === "lc");
+  caretEl.classList.toggle("rc", tri === "rc");
   caretEl.style.left = x + "px";
   caretEl.style.top = y + "px";
   caretEl.style.height = h + "px";
@@ -959,6 +1041,40 @@ function drawCaret() {
   idleTimer = setTimeout(() => caretEl.classList.add("idle"), CARET_TIMEOUT);
 }
 addEventListener("resize", drawCaret);
+
+// Which caret Tag shows (its caret code's triangle rule): K, the typing language, is the
+// paragraph's (1 Hebrew, 0 English); A and B are the languages of the characters before and
+// after the caret: a letter's own, else its run's (a secondary-language run is the other one).
+// At a paragraph's start with B != K or its end with A != K: K ? ◀ : ▶; with A != K and B != K
+// (inside a secondary-language run): K ? ▶ : ◀; else the bar (null).
+function caretTriangle(node, off, el0) {
+  const para = el0.closest(BLOCKS) || el0;
+  const K = getComputedStyle(para).direction === "rtl" ? 1 : 0;
+  const langOf = (tn, i) => {
+    const ch = tn.data[i];
+    if (/[\u05d0-\u05ea]/.test(ch)) return 1;
+    if (/[A-Za-z]/.test(ch)) return 0;
+    return tn.parentElement.closest(".fl") ? 1 - K : K;
+  };
+  // the text characters around the caret, within its paragraph
+  const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT);
+  const texts = [];
+  while (walker.nextNode()) if (walker.currentNode.data.length) texts.push(walker.currentNode);
+  let before = null, after = null;
+  if (node.nodeType === 3 && off > 0 && off < node.data.length) { before = [node, off - 1]; after = [node, off]; }
+  else {
+    const r = document.createRange();
+    r.setStart(node, off);
+    for (const tn of texts) {
+      if (r.comparePoint(tn, tn.data.length) <= 0) before = [tn, tn.data.length - 1];   // ends at or before the caret
+      else if (!after && r.comparePoint(tn, 0) >= 0) after = [tn, 0];                  // starts at or after it
+    }
+  }
+  const A = before ? langOf(...before) : null, B = after ? langOf(...after) : null;
+  if ((before === null && B !== null && B !== K) || (after === null && A !== null && A !== K)) return K ? "lc" : "rc";
+  if (A !== null && B !== null && A !== K && B !== K) return K ? "rc" : "lc";
+  return null;
+}
 
 function caretHome(c = active) {
   if (!c || layer.querySelector(".dlg,.msg")) return;
@@ -1114,7 +1230,8 @@ function makeChild(o) {
   c.cap = el("div", { class: "child-caption" }, el("span", { class: "child-icon" }), c.titleEl, c.btns);
   c.ruler = el("div", { class: "ruler" });
   c.doc = el("div", { class: "page" + (o.editable ? " newtext " + o.lang : ""), spellcheck: "false" });
-  c.text = el("div", { class: "text", dir: o.lang === "he" ? "rtl" : "ltr" }, c.doc);
+  c.selLayer = el("div", { class: "sellayer" });
+  c.text = el("div", { class: "text", dir: o.lang === "he" ? "rtl" : "ltr" }, c.doc, c.selLayer);
   c.el = el("section", { class: "child" }, c.cap, c.ruler, c.text);
   c.ibtns = el("span", { class: "child-buttons" });
   c.ititle = el("span", { class: "child-title" }, o.short);
@@ -1122,7 +1239,7 @@ function makeChild(o) {
   document.getElementById("mdi").append(c.el, c.iconic);
   wireChild(c);
   wireText(c);
-  new ResizeObserver(() => ruler(c)).observe(c.text);
+  new ResizeObserver(() => { ruler(c); drawSelection(c); }).observe(c.text);
   kids.push(c);
   return c;
 }
@@ -1146,6 +1263,7 @@ function activate(c) {
   active = c;
   if (wasMax && c.state === "normal") c.state = "max";
   for (const k of kids) { k.el.classList.toggle("inactive", k !== c); k.el.style.zIndex = k === c ? "2" : "1"; }
+  queueMicrotask(drawSelections);
   c.text.append(caretEl);
   layout(c);
   queueMicrotask(focusText);
@@ -1632,6 +1750,15 @@ function hideTip() { clearTimeout(tipTimer); tipEl.hidden = true; }
 setSkin(skin);
 if (location.hash === "#settings") openDialog();
 
+// `#seldemo` (for tests): a selection from the first paragraph into the second, left on screen
+if (location.hash === "#seldemo") {
+  const ps = active.doc.querySelectorAll("p");
+  const texts = (p) => { const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT); const r = []; while (w.nextNode()) if (w.currentNode.data.length >= 6) r.push(w.currentNode); return r; };
+  const t0 = texts(ps[0])[1], t1 = texts(ps[1])[0];
+  active.doc.focus();
+  getSelection().setBaseAndExtent(t0, 2, t1, 3);
+}
+
 // `#measure` (for tests, headless): every label of the dialog that doesn't fit its control, in
 // both languages and skins, as JSON in <pre id="measure">. Nothing is remembered.
 if (location.hash === "#measure") {
@@ -1714,6 +1841,41 @@ if (location.hash === "#measure") {
     const edges = keys.map((r) => Math.round(l === "en" ? pr.right - r.right : r.left - pr.left));
     if (new Set(edges).size !== 1 || edges[0] > 24) out.push({ menuKeys: l, edges });
     pull.parentElement.classList.remove("open");
+  }
+  // the selection as Tag's inverted region: from inside the first paragraph into the second, the
+  // bands touch, the first starts mid-line, the first paragraph's last line runs to the far edge
+  {
+    lang = "en"; buildFrame();
+    const ps = active.doc.querySelectorAll("p");
+    const texts = (p) => { const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT); const r = []; while (w.nextNode()) if (w.currentNode.data.length >= 6) r.push(w.currentNode); return r; };
+    const t0 = texts(ps[0])[1], t1 = texts(ps[1])[0];
+    getSelection().setBaseAndExtent(t0, 5, t1, 3);
+    active.sel = { anchorNode: t0, anchorOffset: 5, focusNode: t1, focusOffset: 3 };
+    drawSelection(active);
+    const W = active.text.clientWidth;
+    const bands = [...active.selLayer.children].map((d) => ({ l: parseFloat(d.style.left), w: parseFloat(d.style.width), top: parseFloat(d.style.top), h: parseFloat(d.style.height) }));
+    const touch = bands.every((b, i) => i === bands.length - 1 || Math.abs(b.top + b.h - bands[i + 1].top) < 0.5);
+    const ok = bands.length >= 2 && touch && bands[0].l > 0 && bands.slice(0, -1).some((b) => Math.abs(b.l + b.w - W) < 0.5) && bands.at(-1).l === 0;
+    if (!ok) out.push({ selection: bands.map((b) => [b.l, b.w, b.top, b.h].map(Math.round)), W });
+    getSelection().collapse(t0, 0);
+    active.sel = { anchorNode: t0, anchorOffset: 0, focusNode: t0, focusOffset: 0 };
+    drawSelection(active);
+  }
+  // the triangle carets: in a secondary-language run ▶ (Hebrew text) or ◀ (English text), else the bar
+  for (const [l, want] of [["he", "rc"], ["en", "lc"]]) {
+    lang = l; buildFrame();
+    const fl = active.doc.querySelector("p .fl");
+    const tn = [...fl.childNodes].find((n) => n.nodeType === 3 && n.data.length >= 2);
+    active.doc.focus();
+    getSelection().collapse(tn, 1);
+    drawCaret();
+    const got = caretEl.classList.contains("lc") ? "lc" : caretEl.classList.contains("rc") ? "rc" : "bar";
+    // and in the paragraph's own language: the bar
+    const own = [...active.doc.querySelector("p").childNodes].find((n) => n.nodeType === 3 && n.data.trim().length >= 3);
+    getSelection().collapse(own, 1);
+    drawCaret();
+    const got2 = caretEl.classList.contains("lc") || caretEl.classList.contains("rc") ? "triangle" : "bar";
+    if (got !== want || got2 !== "bar") out.push({ caret: l, inRun: got, want, own: got2, run: fl.textContent });
   }
   // Alt+N opens File > New text
   document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyN", key: "n", altKey: true, bubbles: true }));
