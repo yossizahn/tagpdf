@@ -27,8 +27,8 @@ button { font: inherit; color: inherit; }
 
 
 .caption { height: 30px; flex: none; display: flex; align-items: center; background: #fff; font: var(--modern); user-select: none; direction: ltr; }
-.app-icon { width: 16px; height: 16px; margin: 0 6px 0 8px; flex: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='.5' y='.5' width='15' height='15' fill='%23008' stroke='%2300f'/%3E%3Ctext x='8' y='12' font-size='10' font-family='Tahoma' font-weight='bold' fill='%23ff0' text-anchor='middle'%3ETag%3C/text%3E%3C/svg%3E") no-repeat center / 16px; }
+.app-icon { width: 16px; height: 16px; margin: 0 6px 0 8px; flex: none; image-rendering: pixelated;
+  background: image-set(url("icon16.png") 1x, url("icon32.png") 2x) no-repeat center / 16px; }
 .caption-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .caption-buttons { display: flex; height: 100%; }
 .cb { width: 46px; height: 100%; border: 0; background: transparent center no-repeat; padding: 0; }
@@ -95,7 +95,8 @@ button { font: inherit; color: inherit; }
 .child.max { inset: 0 !important; width: auto !important; height: auto !important; padding: 0; border: 0; box-shadow: none; background: #fff; }
 .child.max .child-caption { display: none; }
 .child-caption { height: 28px; flex: none; display: flex; align-items: center; direction: ltr; font: var(--modern); user-select: none; touch-action: none; padding-top: 2px; }
-.child-icon { width: 16px; height: 14px; margin: 0 6px 0 2px; flex: none; background: linear-gradient(#fff, #fff) 3px 3px / 10px 8px no-repeat, #6a8fc8; border: 1px solid #446; }
+/* the Tag PDF icon, as the caption's (.app-icon): favicon.ico's 16 and 32 px frames */
+.child-icon { width: 16px; height: 16px; margin: 0 6px 0 2px; flex: none; background: image-set(url("icon16.png") 1x, url("icon32.png") 2x) no-repeat center / 16px; image-rendering: pixelated; }
 .child-title { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .child-buttons { display: flex; gap: 4px; margin-left: 6px; }
 /* the basic frame's caption buttons: glossy blue, the close red; white glyphs edged dark */
@@ -319,6 +320,12 @@ button.close { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .msg { max-width: min(440px, calc(100vw - 32px)); }
 .msg .body { display: flex; gap: 12px; padding: 20px 20px 18px; white-space: pre-wrap; background: #fff; }
 .msg .body svg { width: 32px; height: 32px; flex: none; }
+/* the Tag PDF icon (site.js appIcon): pixel art, never smoothed */
+.appicon { flex: none; image-rendering: pixelated; user-select: none; -webkit-user-select: none; pointer-events: none; }
+/* large on the site's text window, centred in the white beside the page; gone where it doesn't fit */
+.child > .text { container-type: inline-size; }
+.docicon { position: absolute; top: 48px; inset-inline-start: calc(16cm + 16px + (100% - 16cm - 16px - 128px) / 2); }
+@container (width < 800px) { .docicon { display: none; } }
 .msg .buttons { display: flex; justify-content: flex-end; padding: 10px 12px; background: #f0f0f0; border-top: 1px solid #dfdfdf; }
 .msg .buttons button { min-width: 75px; height: 23px; }
 
@@ -341,6 +348,7 @@ button.close { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* About, in Tag's About box's spirit: Tag's message box (no caption, #e9e9e9, bold system font,
    each line centred, OK 63 x 24 under them) */
 .tagabout .aboutbody { background: #e9e9e9; padding: 3px 11px 6px; min-width: 185px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.tagabout .abouticon { margin-top: 12px; }
 .tagabout .lines { font: bold 12px/16px Tahoma, "Microsoft Sans Serif", sans-serif; text-align: center; padding-top: 6px; }
 .tagabout .lines div:first-child { font-size: 14px; }
 .tagabout button.push { width: 63px; height: 24px; }

@@ -164,6 +164,12 @@ function el(tag, props = {}, ...kids) {
   return e;
 }
 
+// the Tag PDF icon at `size` px (its pixels doubled on 2x screens)
+function appIcon(size, cls) {
+  return el("img", { class: "appicon " + cls, src: "icon" + size + ".png", srcset: "icon" + size + ".png 1x, icon" + Math.min(size * 2, 256) + ".png 2x",
+    width: size, height: size, alt: "", draggable: "false" });
+}
+
 function infoIcon() {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   s.setAttribute("viewBox", "0 0 32 32");
@@ -481,7 +487,7 @@ function newTextDialog() {
 }
 
 // Help > About: in the spirit of Tag's own Help > About Tag: Tag's message box, no
-// caption, #e9e9e9, short lines in a bold system font, each centred, OK under them
+// caption, #e9e9e9, the Tag PDF icon, short lines in a bold system font, each centred, OK under them
 function aboutBox() {
   const he = rtl();
   const lines = he
@@ -491,7 +497,7 @@ function aboutBox() {
   const [outer, body] = windowShell("", "msg tagabout", close);
   outer.dir = he ? "rtl" : "ltr";
   const ok = el("button", { class: "push default", onclick: close }, he ? "אישור" : "OK");
-  body.append(el("div", { class: "aboutbody" }, el("div", { class: "lines" }, ...lines.map((x) => el("div", {}, x))), ok));
+  body.append(el("div", { class: "aboutbody" }, appIcon(64, "abouticon"), el("div", { class: "lines" }, ...lines.map((x) => el("div", {}, x))), ok));
   layer.append(outer);
   layerState();
   center(outer);
@@ -1232,6 +1238,8 @@ function makeChild(o) {
   c.doc = el("div", { class: "page" + (o.editable ? " newtext " + o.lang : ""), spellcheck: "false" });
   c.selLayer = el("div", { class: "sellayer" });
   c.text = el("div", { class: "text", dir: o.lang === "he" ? "rtl" : "ltr" }, c.doc, c.selLayer);
+  // the site's own window: the Tag PDF icon, large, in the white beside the page
+  if (!o.editable) c.text.append(appIcon(128, "docicon"));
   c.el = el("section", { class: "child" }, c.cap, c.ruler, c.text);
   c.ibtns = el("span", { class: "child-buttons" });
   c.ititle = el("span", { class: "child-title" }, o.short);
@@ -1531,12 +1539,12 @@ function center(w) {
   w.style.top = Math.max(0, (innerHeight - r.height) / 2.4) / z + "px";
 }
 
-function msgbox(text) {
+function msgbox(text, icon = infoIcon()) {
   const close = () => { outer.remove(); layerState(); };
   const [outer, body] = windowShell("Tag PDF", "msg", close);
   outer.dir = rtl() ? "rtl" : "ltr";
   const ok = el("button", { class: "push default", onclick: close }, t("ok"));
-  body.append(el("div", { class: "body" }, infoIcon(), el("div", {}, text)), el("div", { class: "buttons" }, ok));
+  body.append(el("div", { class: "body" }, icon, el("div", {}, text)), el("div", { class: "buttons" }, ok));
   // Ctrl+C copies the box as Windows' message boxes do
   outer.addEventListener("keydown", (e) => {
     if (!e.ctrlKey || e.code !== "KeyC") return;
@@ -1552,12 +1560,12 @@ function msgbox(text) {
 
 // ---- File > PDF settings
 
-// the dialog's About...: WINPDF.DLL's own: a Windows message box, Tag PDF, the
-// information icon, the build and where the DLL and WINPDF.INI are (here the usual Tag folder)
+// the dialog's About...: WINPDF.DLL's own: a Windows message box, Tag PDF, the Tag PDF
+// icon, the build and where the DLL and WINPDF.INI are (here the usual Tag folder)
 function settingsAbout() {
   msgbox(rtl()
     ? "Tag PDF: מדפסת ה-PDF של תג\n\nגרסה: WINPDF " + CONFIG.version + "\n\nWINPDF.DLL: C:\\TAG\\WINPDF.DLL\nההגדרות: C:\\TAG\\WINPDF.INI"
-    : "Tag PDF: the PDF printer for Tag\n\nVersion: WINPDF " + CONFIG.version + "\n\nWINPDF.DLL: C:\\TAG\\WINPDF.DLL\nSettings: C:\\TAG\\WINPDF.INI");
+    : "Tag PDF: the PDF printer for Tag\n\nVersion: WINPDF " + CONFIG.version + "\n\nWINPDF.DLL: C:\\TAG\\WINPDF.DLL\nSettings: C:\\TAG\\WINPDF.INI", appIcon(32, "msgicon"));
 }
 
 let curTab = 0;
