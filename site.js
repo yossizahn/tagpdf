@@ -59,7 +59,7 @@ const T = {
     saved: "On the web page nothing is saved.\nIn Tag, OK writes WINPDF.INI in the Tag folder.",
     doc: `
 <h1>Tag PDF<span class="beta" contenteditable="false">{beta}</span></h1>
-<p>A PDF printer for Tag (תג) 3.99 and TagXP. Print a book from Tag as you always do, pick <b>Tag PDF</b>, and get a PDF.</p>
+<p>A PDF printer for Tag (תג). Print a book from Tag as you always do, pick <b>Tag PDF</b> as the printer, and get a PDF.</p>
 <div class="cta">
   <button class="default" data-act="download">Download TagPDFSetup.exe</button>
   <button data-act="settings">See the PDF settings...</button>
@@ -67,21 +67,20 @@ const T = {
 </div>
 <h2>What it does</h2>
 <ul>
-  <li>Prints from PAGINATE, AROT and File › Print as usual: choose <b>Tag PDF</b> in the LIB's printer box or in File › Print setup.</li>
-  <li>The PDF looks like Bullzip's, the PDFs printing houses already get from Tag users. Fonts are embedded, only the letters used.</li>
-  <li>Hebrew can be searched and copied, also in Tag's 8-bit fonts (GFrank, VTRashi, VTVilna, Hadassah).</li>
-  <li>Every other printer prints exactly as before.</li>
-  <li>Settings in Tag's own menu: <b>File › PDF settings</b>, in English or Hebrew.</li>
+  <li>Prints from any print dialog as usual: choose <b>Tag PDF</b> in the dialog's printer setup box or in File › Print setup.</li>
+  <li>The PDF looks exactly like printing via a virtual PDF printer you are used to using (e.g. PDF Creator). Fonts are subset and embedded correctly.</li>
+  <li>Hebrew can be searched and copied, also in Tag's 8-bit fonts that other PDF printers don't support.</li>
+  <li>Includes an advanced settings dialog triggered from Tag's own menu: <b>File › PDF settings</b>, in English or Hebrew.</li>
 </ul>
 <h2>Install</h2>
 <ol>
-  <li>Download <b>TagPDFSetup.exe</b> and run it. Tag may stay open.</li>
+  <li>Download <b>TagPDFSetup.exe</b> and run it. Tag may need to be closed (if <code>winprint.dll</code> is in use).</li>
   <li>It finds your Tag folder and puts in <code>WINPDF.DLL</code>, <code>WINPDFSET.PRG</code> and <code>WINPDF.INI</code>; sets the PDF driver in the printer table; adds File › PDF settings to <code>TAG.INI</code> if you want; and adds the <b>Tag PDF</b> Windows printer.</li>
   <li>Restart Tag, then print to <b>Tag PDF</b>.</li>
 </ol>
 <p>To remove it, run the setup again and choose <b>Remove</b>.</p>
 <h2>The settings</h2>
-<p>Open <b>File › PDF settings</b> to try the dialog: the same tabs and controls as in Tag. Point at a setting to read what it does.</p>
+<p>Open <b>File › PDF settings</b> in this website! to try the dialog: the same tabs and controls as in Tag. Hover over a setting to read what it does.</p>
 <div class="note">Greyed settings are planned and don't work yet.</div>
 `,
   },
@@ -111,7 +110,7 @@ const T = {
     saved: "בדף האינטרנט שום דבר לא נשמר.\nבתג, אישור כותב את WINPDF.INI בתיקיית תג.",
     doc: `
 <h1>Tag PDF<span class="beta" contenteditable="false">{beta}</span></h1>
-<p>מדפסת PDF לתג 3.99 ול-TagXP. מדפיסים ספר מתג כמו תמיד, בוחרים <b>Tag PDF</b>, ומקבלים PDF.</p>
+<p>מדפסת PDF לתג. מדפיסים ספר מתג כמו תמיד, בוחרים במדפסת <b>Tag PDF</b>, ומקבלים PDF.</p>
 <div class="cta">
   <button class="default" data-act="download">הורד את TagPDFSetup.exe</button>
   <button data-act="settings">הצג את הגדרות ה-PDF...</button>
@@ -119,21 +118,20 @@ const T = {
 </div>
 <h2>מה הוא עושה</h2>
 <ul>
-  <li>מדפיס מ-PAGINATE, מ-AROT ומקובץ › הדפסה כרגיל: בוחרים <b>Tag PDF</b> בחלון המדפסת של ה-LIB או בקובץ › הגדרת הדפסה.</li>
-  <li>ה-PDF נראה כמו של Bullzip, כמו קובצי ה-PDF שבתי הדפוס כבר מקבלים ממשתמשי תג. הגופנים מוטמעים, רק האותיות שבשימוש.</li>
-  <li>אפשר לחפש ולהעתיק את העברית, גם בגופנים של 8 סיביות של תג (GFrank, VTRashi, VTVilna, Hadassah).</li>
-  <li>כל שאר המדפסות מדפיסות בדיוק כמו קודם.</li>
-  <li>ההגדרות בתפריט של תג עצמו: <b>קובץ › הגדרות PDF</b>, באנגלית או בעברית.</li>
+  <li>מדפיס מכל חלון הדפסה כרגיל: בוחרים <b>Tag PDF</b> בחלון הגדרת המדפסת של החלון, או בקובץ › הגדרת מדפסת.</li>
+  <li>ה-PDF נראה בדיוק כמו הדפסה דרך מדפסת PDF וירטואלית שאתם רגילים אליה (למשל PDF Creator). הגופנים מוטמעים כראוי, רק האותיות שבשימוש.</li>
+  <li>אפשר לחפש ולהעתיק את העברית, גם בגופני 8 הסיביות של תג, שמדפסות PDF אחרות לא תומכות בהם.</li>
+  <li>כולל חלון הגדרות מתקדם שנפתח מהתפריט של תג עצמו: <b>קובץ › הגדרות PDF</b>, באנגלית או בעברית.</li>
 </ul>
 <h2>התקנה</h2>
 <ol>
-  <li>הורידו את <b>TagPDFSetup.exe</b> והריצו אותו. תג יכול להישאר פתוח.</li>
+  <li>הורידו את <b>TagPDFSetup.exe</b> והריצו אותו. ייתכן שתצטרכו לסגור את תג (אם <code>winprint.dll</code> בשימוש).</li>
   <li>הוא מוצא את תיקיית תג ומכניס אליה את <code>WINPDF.DLL</code>, <code>WINPDFSET.PRG</code> ו-<code>WINPDF.INI</code>; קובע את מנהל ההתקן של ה-PDF בטבלת המדפסת; מוסיף את קובץ › הגדרות PDF ל-<code>TAG.INI</code> אם תרצו; ומוסיף את המדפסת <b>Tag PDF</b> ל-Windows.</li>
   <li>הפעילו את תג מחדש, והדפיסו ל-<b>Tag PDF</b>.</li>
 </ol>
 <p>להסרה, הריצו את ההתקנה שוב ובחרו <b>הסר</b>.</p>
 <h2>ההגדרות</h2>
-<p>פתחו את <b>קובץ › הגדרות PDF</b> כדי לנסות את החלון: אותן לשוניות ואותם פקדים כמו בתג. הצביעו על הגדרה כדי לקרוא מה היא עושה.</p>
+<p>פתחו את <b>קובץ › הגדרות PDF</b> באתר הזה! כדי לנסות את החלון: אותן לשוניות ואותם פקדים כמו בתג. העבירו את העכבר מעל הגדרה כדי לקרוא מה היא עושה.</p>
 <div class="note">הגדרות אפורות מתוכננות ועדיין לא פועלות.</div>
 `,
   },
