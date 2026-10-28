@@ -33,6 +33,7 @@ let skin = store.get("skin") === "7" ? "7" : "10";
 const T = {
   en: {
     appTitle: "Tag PDF",
+    pageTitle: "Tag PDF – a PDF printer for Tag",
     childTitle: "1  C:\\TAG\\TAGPDF.I",
     childShort: "TAGPDF.I",
     menus: ["&File", "&Edit", "&View", "&Search", "&Markup", "&Attributes", "&Layout", "S&cript", "&Window", "&Help"],
@@ -53,7 +54,7 @@ const T = {
     // the page's style sheet: Tag codes are one or two characters, the name is the style's own
     codes: { "01": "Title", "02": "Heading", "03": "Body", "04": "List item", "05": "Note", "06": "Buttons" },
     ok: "OK",
-    aboutText: "Tag PDF {v}\n\nA PDF printer for Tag (תג) 3.99 and TagXP.\nWINPDF.DLL, the \"Tag PDF\" printer and File > PDF settings.",
+    aboutText: "Tag PDF {v}\n\nA PDF printer for Tag (תג).\nWINPDF.DLL, the \"Tag PDF\" printer and File > PDF settings.",
     exitText: "This is a web page: there is nothing to close.",
     notHere: "This button works in Tag. On the web page nothing opens.",
     saved: "On the web page nothing is saved.\nIn Tag, OK writes WINPDF.INI in the Tag folder.",
@@ -86,6 +87,7 @@ const T = {
   },
   he: {
     appTitle: "Tag PDF",
+    pageTitle: "Tag PDF – מדפסת PDF לתג",
     childTitle: "1  C:\\TAG\\TAGPDF.I",
     childShort: "TAGPDF.I",
     menus: ["&קובץ", "&עריכה", "&הצג", "&חיפוש", "&סימון", "&תכונות", "ע&יצוב", "ס&קריפט", "&חלון", "ע&זרה"],
@@ -104,7 +106,7 @@ const T = {
       special: "&תווים מיוחדים...", shortcuts: "&קיצורים...", sayHi: "&אמור שלום" },
     codes: { "01": "כותרת ראשית", "02": "כותרת", "03": "גוף", "04": "רשימה", "05": "הערה", "06": "כפתורים" },
     ok: "אישור",
-    aboutText: "Tag PDF {v}\n\nמדפסת PDF לתג 3.99 ול-TagXP.\nWINPDF.DLL, המדפסת \"Tag PDF\" וקובץ › הגדרות PDF.",
+    aboutText: "Tag PDF {v}\n\nמדפסת PDF לתג.\nWINPDF.DLL, המדפסת \"Tag PDF\" וקובץ › הגדרות PDF.",
     exitText: "זה דף אינטרנט: אין מה לסגור.",
     notHere: "הכפתור הזה פועל בתג. בדף האינטרנט שום דבר לא נפתח.",
     saved: "בדף האינטרנט שום דבר לא נשמר.\nבתג, אישור כותב את WINPDF.INI בתיקיית תג.",
@@ -491,8 +493,8 @@ function newTextDialog() {
 function aboutBox() {
   const he = rtl();
   const lines = he
-    ? ["Tag PDF", "גירסה: " + CONFIG.version + (CONFIG.beta ? " (בטא)" : ""), "לתג 3.99 ומטה"]
-    : ["Tag PDF", "Version: " + CONFIG.version + (CONFIG.beta ? " (beta)" : ""), "For Tag 3.99 and lower"];
+    ? ["Tag PDF", "גירסה: " + CONFIG.version + (CONFIG.beta ? " (בטא)" : ""), "לתג"]
+    : ["Tag PDF", "Version: " + CONFIG.version + (CONFIG.beta ? " (beta)" : ""), "For Tag"];
   const close = () => { outer.remove(); layerState(); focusText(); };
   const [outer, body] = windowShell("", "msg tagabout", close);
   outer.dir = he ? "rtl" : "ltr";
@@ -614,7 +616,7 @@ function buildMenus() {
 function buildFrame() {
   document.documentElement.lang = lang;
   for (const n of document.querySelectorAll("[data-t]")) n.textContent = t(n.dataset.t);
-  document.title = "Tag PDF";
+  document.title = t("pageTitle");
   caption();
 
   // Tag's menus; File, View and Help work here
