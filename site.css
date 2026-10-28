@@ -1,0 +1,353 @@
+/* Tag PDF site. Tag's window as it looks on Windows 10: modern chrome (caption, menu bar) and
+   classic contents (instruction bar, MDI child, ruler, status bar) in Tahoma. File > PDF
+   settings is the real dialog (dialog-data.js) in Windows 10 controls, or 7.css's Windows 7
+   (`.win7`, 7.scoped.css). */
+:root {
+  --face: #f0f0f0;
+  --shadow: #a0a0a0;
+  --dark: #696969;
+  --light: #fff;
+  --mdi: #ababab;
+  --accent: #0078d7;
+  --tip: #ffffe1;
+  --classic: 11px Tahoma, "Segoe UI", Arial, sans-serif;
+  --modern: 12px "Segoe UI", Tahoma, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+/* the interface's text can't be selected; only the texts and the edit fields can */
+body { user-select: none; -webkit-user-select: none; }
+.page, input, textarea { user-select: text; -webkit-user-select: text; }
+.page .cta { user-select: none; -webkit-user-select: none; }
+body { background: var(--face); color: #000; font: var(--classic); }
+button { font: inherit; color: inherit; }
+
+/* ---- Tag's top-level window: fills the page */
+.app { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--face); border: 1px solid #aaa; }
+
+
+.caption { height: 30px; flex: none; display: flex; align-items: center; background: #fff; font: var(--modern); user-select: none; direction: ltr; }
+.app-icon { width: 16px; height: 16px; margin: 0 6px 0 8px; flex: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='.5' y='.5' width='15' height='15' fill='%23008' stroke='%2300f'/%3E%3Ctext x='8' y='12' font-size='10' font-family='Tahoma' font-weight='bold' fill='%23ff0' text-anchor='middle'%3ETag%3C/text%3E%3C/svg%3E") no-repeat center / 16px; }
+.caption-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.caption-buttons { display: flex; height: 100%; }
+.cb { width: 46px; height: 100%; border: 0; background: transparent center no-repeat; padding: 0; }
+.cb:hover { background-color: #e5e5e5; }
+.cb.close:hover { background-color: #e81123; }
+.cb.min { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M0 5.5h10' stroke='%23000'/%3E%3C/svg%3E"); }
+.cb.max { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M.5 2.5h7v7h-7zM2.5 2.5v-2h7v7h-2' stroke='%23000' fill='none'/%3E%3C/svg%3E"); }
+.cb.close { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M0 0l10 10M10 0L0 10' stroke='%23000'/%3E%3C/svg%3E"); }
+.cb.close:hover { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M0 0l10 10M10 0L0 10' stroke='%23fff'/%3E%3C/svg%3E"); }
+
+/* menus as Tag paints them (not themed: flat classic menus in the system's colours, as on
+   Windows 10): the bar #f0f0f0, the open or hot item solid highlight
+   with white text; the pull-down #f0f0f0 in a 1 px #a0a0a0 + 1 px #dcdcdc edge with a dark shadow,
+   items highlighted inset 3 px, separators #adadad over #fcfcfc, disabled items grey */
+.menubar { --hl: #0078d7; flex: none; display: flex; flex-wrap: wrap; background: #f0f0f0; font: var(--modern); user-select: none; position: relative; z-index: 20; padding: 0; }
+[data-skin="7"] .menubar { --hl: #3399ff; }
+.menubar .top { position: relative; }
+.menubar .top > button { border: 0; background: none; padding: 2px 8px 3px; cursor: default; line-height: 15px; }
+.menubar:not(:has(.open)) .top:not(.inert) > button:hover, .menubar .top.open > button { background: var(--hl); color: #fff; }
+.menubar .top.inert > button { color: #6d6d6d; }
+.pull { position: absolute; top: 100%; inset-inline-start: 0; min-width: 200px; display: none; background: #f0f0f0; padding: 2px; border: 1px solid #a0a0a0;
+  box-shadow: inset 1px 1px #dcdcdc, inset -1px -1px #dcdcdc, 2px 2px 2px rgba(0,0,0,.45); }
+.top.open > .pull { display: block; }
+.pull button { display: flex; justify-content: space-between; gap: 24px; width: 100%; border: 0; background: none; padding: 3px 20px 3px 20px; line-height: 15px; text-align: start; cursor: default; white-space: nowrap; position: relative; color: #000; }
+.pull button:hover, .pull button:focus-visible { background: var(--hl); color: #fff; outline: none; }
+.pull button:disabled { color: #6d6d6d; background: none; }
+.pull button[aria-checked="true"]::before { content: "\2022"; position: absolute; inset-inline-start: 7px; }
+.pull hr { border: 0; height: 2px; margin: 3px 1px; background: linear-gradient(#adadad 1px, #fcfcfc 1px); }
+
+/* ---- classic contents */
+.raised { box-shadow: inset -1px -1px var(--dark), inset 1px 1px var(--light), inset -2px -2px var(--shadow), inset 2px 2px #e3e3e3; }
+.sunken { box-shadow: inset 1px 1px var(--shadow), inset -1px -1px var(--light), inset 2px 2px var(--dark), inset -2px -2px #e3e3e3; }
+
+/* the instruction bar */
+.instr { flex: none; display: flex; align-items: center; gap: 3px; padding: 2px 4px; height: 26px; background: #c0c0c0; border-top: 1px solid #fff; border-bottom: 1px solid #000; overflow: hidden; direction: ltr; }
+.instr .btn { height: 20px; min-width: 20px; padding: 0 3px; border: 0; background: #c0c0c0; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.instr .btn:active, .instr .btn.on { box-shadow: inset 1px 1px var(--dark), inset -1px -1px var(--light), inset 2px 2px var(--shadow); }
+/* a checked toolbar button: sunken, with the classic white / silver dither */
+.instr .btn.on { background: repeating-conic-gradient(#fff 0 25%, #c0c0c0 0 50%) 0 0 / 2px 2px; }
+.combo { position: relative; height: 21px; background: #fff; display: inline-flex; align-items: center; flex: none; padding: 0 20px 0 4px; white-space: nowrap; overflow: hidden; }
+.combo::after { content: ""; position: absolute; right: 2px; top: 2px; width: 16px; height: 17px; background: #c0c0c0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0h7L3.5 4z'/%3E%3C/svg%3E") no-repeat center;
+  box-shadow: inset -1px -1px var(--dark), inset 1px 1px var(--light), inset -2px -2px var(--shadow); }
+.combo input { border: 0; outline: 0; font: inherit; width: 100%; background: transparent; padding: 0; }
+.instr .cmd { width: 168px; }
+.instr .font { width: 152px; }
+.instr .weight { width: 66px; direction: rtl; }
+.instr .size { width: 26px; height: 21px; background: #fff; padding: 0 3px; display: inline-flex; align-items: center; flex: none; }
+.instr .spin { width: 11px; height: 21px; display: inline-flex; flex-direction: column; flex: none; }
+.instr .spin span { flex: 1; font-size: 5px; display: flex; align-items: center; justify-content: center; }
+.instr .g { font-weight: bold; }
+.instr .it { font-style: italic; font-family: "Times New Roman", serif; font-size: 13px; font-weight: bold; }
+.instr .un { text-decoration: underline; font-family: "Times New Roman", serif; font-size: 13px; font-weight: bold; }
+
+/* the MDI client and its one child: normal (filling the client at first, like Tag's), maximised
+   (its caption goes into the menu bar), minimised (an iconic bar) or closed. Windows 10 draws an
+   MDI child with the basic (Windows 7-like) frame, so it is the same in both skins: 1 px black,
+   1 px white, a 6 px #bad2ea frame, the caption a #99b4d1 to #b9d1ea gradient. */
+.mdi { flex: 1; min-height: 0; background: #ababab; position: relative; overflow: hidden; }
+.child { position: absolute; display: flex; flex-direction: column; min-width: 0; padding: 0 6px 6px; border: 1px solid #000; border-top-color: #343434;
+  background: linear-gradient(#99b4d1, #b9d1ea 28px, #bad2ea 28px); box-shadow: inset 0 0 0 1px #fff; }
+.child[hidden] { display: none; }
+.child.inactive { background: linear-gradient(#bfcddb, #d7e4f2 28px, #d7e4f2 28px); border-color: #555; }
+.child.inactive .child-title { color: #6d6d6d; }
+.child.max { inset: 0 !important; width: auto !important; height: auto !important; padding: 0; border: 0; box-shadow: none; background: #fff; }
+.child.max .child-caption { display: none; }
+.child-caption { height: 28px; flex: none; display: flex; align-items: center; direction: ltr; font: var(--modern); user-select: none; touch-action: none; padding-top: 2px; }
+.child-icon { width: 16px; height: 14px; margin: 0 6px 0 2px; flex: none; background: linear-gradient(#fff, #fff) 3px 3px / 10px 8px no-repeat, #6a8fc8; border: 1px solid #446; }
+.child-title { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.child-buttons { display: flex; gap: 4px; margin-left: 6px; }
+/* the basic frame's caption buttons: glossy blue, the close red; white glyphs edged dark */
+.child-buttons button, .mdibtns button { width: 31px; height: 17px; padding: 0; border: 1px solid #36506f; border-radius: 3px; font-size: 0;
+  background: var(--glyph) no-repeat center, linear-gradient(#e3ecf6, #c1d3e7 50%, #a8c0dc 50%, #bcd0e6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.55); }
+.child-buttons button:hover, .mdibtns button:hover { background: var(--glyph) no-repeat center, linear-gradient(#eef6ff, #cfe3fb 50%, #9cc4ef 50%, #b7d8fa); }
+.child-buttons button.close, .mdibtns button.close { width: 32px; border-color: #3f1a1a;
+  background: var(--glyph) no-repeat center, linear-gradient(#f0b9ad, #e8a699 50%, #b8432c 50%, #cf6a4f); }
+.child-buttons button.close:hover, .mdibtns button.close:hover { background: var(--glyph) no-repeat center, linear-gradient(#ffc3b5, #f59c86 50%, #d4300d 50%, #e75f3b); }
+button.min { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='9'%3E%3Crect x='.5' y='4.5' width='9' height='3' fill='%23fff' stroke='%231d2b41'/%3E%3C/svg%3E"); }
+button.max { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='9'%3E%3Cpath d='M.5.5h10v8H.5zM3.5 3.5v2h4v-2z' fill='%23fff' fill-rule='evenodd' stroke='%231d2b41'/%3E%3C/svg%3E"); }
+button.restore { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='10'%3E%3Cpath d='M3.5.5h8v6h-8z' fill='%23fff' stroke='%231d2b41'/%3E%3Cpath d='M.5 3.5h8v6H.5zM2.5 5.5v2h4v-2z' fill='%23fff' fill-rule='evenodd' stroke='%231d2b41'/%3E%3C/svg%3E"); }
+button.close { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='10'%3E%3Cpath d='M2 2l7 6M9 2L2 8' stroke='%231d2b41' stroke-width='3.6'/%3E%3Cpath d='M2 2l7 6M9 2L2 8' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E"); }
+.mdibtns button { width: 24px; height: 15px; }
+.mdibtns button.close { width: 24px; }
+.iconic { position: absolute; left: 2px; bottom: 2px; width: 200px; height: 30px; padding: 0 6px; display: flex; align-items: center; border: 1px solid #000;
+  background: linear-gradient(#99b4d1, #b9d1ea); box-shadow: inset 0 0 0 1px #fff; direction: ltr; font: var(--modern); user-select: none; }
+.iconic[hidden] { display: none; }
+.iconic .child-title { text-align: start; }
+.mdibtns { margin-inline-start: auto; display: flex; gap: 2px; align-items: center; padding: 0 2px; direction: ltr; }
+
+/* the ruler: white, a black base line; cm from the text's start side */
+.ruler { flex: none; height: 21px; position: relative; background: #fff; border-bottom: 1px solid #000; overflow: hidden; display: flex; direction: ltr; }
+.ruler .unit { flex: none; height: 13px; margin: 3px 1px 0 2px; padding: 0 2px; font-size: 9px; display: flex; align-items: center; background: #c0c0c0; }
+.ruler .arrow { flex: none; width: 13px; height: 13px; margin-top: 3px; font-size: 7px; display: flex; align-items: center; justify-content: center; background: #c0c0c0; }
+.ruler .scale { position: relative; flex: 1; overflow: hidden; }
+.ruler .scale span { position: absolute; top: 0; transform: translateX(-50%); font-size: 11px; }
+
+/* the text window: the caret moves (arrows, Home / End, Ctrl+arrows, clicks) but nothing can
+   be typed; every paragraph ends in Tag's mark, a small hollow pilcrow */
+.text { flex: 1; min-height: 0; overflow: auto; background: #fff; position: relative; }
+.page { width: 16cm; max-width: calc(100% - 32px); margin: 0 16px; padding: 18px 0 40px; font: 15px/1.75 Tahoma, Arial, sans-serif; outline: none; caret-color: transparent; }
+/* Tag's caret, drawn by site.js (the browser's own can only change colour): a 2 px bar the
+   line's height, blinking at Windows' 530 ms, solid while it moves */
+#caret { position: absolute; width: 2px; background: #fff; mix-blend-mode: difference; pointer-events: none; z-index: 1; animation: blink 1.06s step-end infinite; }
+#caret.moving, #caret.idle { animation: none; }
+#caret.end { width: 6px; }
+#caret[hidden] { display: none; }
+@keyframes blink { 50% { visibility: hidden; } }
+[dir=rtl] .page { margin-left: auto; text-align: justify; }
+[dir=ltr] .page { margin-right: auto; }
+/* the paragraph mark: one size at every font size (px, not em), a little lighter than the text */
+.page :is(h1, h2, p, li, .note, .cta)::after { content: ""; display: inline-block; width: 6px; height: 9px; margin-inline-start: 2px; vertical-align: -1px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='9'%3E%3Cpath d='M3.5.5h-1.5C1 .5.5 1.3.5 2.3s.5 1.9 1.5 1.9h1.5M3.5.5v8M5.5.5v8M3.5.5h2' stroke='%23707070' fill='none'/%3E%3C/svg%3E") no-repeat; }
+.page h1 { font-size: 30px; text-align: center; margin: 4px 0 18px; font-weight: bold; }
+.page h2 { font-size: 19px; margin: 24px 0 4px; font-weight: bold; }
+.page p { margin: 0 0 8px; }
+.page ul, .page ol { margin: 4px 0 10px; padding-inline-start: 26px; }
+.page li { margin: 2px 0; }
+.page code { font: 13px "Courier New", monospace; }
+.page .cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin: 18px 0; }
+.page .cta button { font: 13px Tahoma, sans-serif; padding: 6px 16px; border: 0; background: var(--face); min-height: 30px; }
+.page .cta button:active { box-shadow: inset 1px 1px var(--dark), inset -1px -1px var(--light), inset 2px 2px var(--shadow); }
+.page .cta button.default { outline: 1px solid #000; outline-offset: -1px; }
+.page .small { font-size: 12px; color: #555; width: 100%; text-align: center; }
+.page .note { font-size: 13px; background: var(--tip); border: 1px solid #000; padding: 4px 10px; margin: 12px 0; }
+
+/* See commands (View): Tag's show-codes marks: a code
+   box at each paragraph's start (1 px black frame, 17 px: 13 above the baseline, 3 below, the
+   code in Tg System, here bold Tahoma), ^ at each space's left edge, and ↵ after the ¶ */
+.page.see [data-code]::before { content: attr(data-code); display: inline-block; height: 17px; padding: 0 2px 0 1px; margin-inline-end: 1px;
+  border: 1px solid #000; font: bold 12px/15px Tahoma, sans-serif; vertical-align: -4px; color: #000; text-align: center; text-indent: 0; }
+.page.see .cta[data-code]::before { align-self: center; }
+.page .sp { position: relative; }
+.page.see .sp::after { content: ""; position: absolute; left: 0; bottom: calc(0.21em - 2px); width: 5px; height: 3px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='5' height='3'%3E%3Cpath d='M0 3L2.5 0 5 3' stroke='%23000' fill='none'/%3E%3C/svg%3E") no-repeat; }
+.page.see :is(h1, h2, p, li, .note, .cta)::after { width: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='9'%3E%3Cpath d='M3.5.5h-1.5C1 .5.5 1.3.5 2.3s.5 1.9 1.5 1.9h1.5M3.5.5v8M5.5.5v8M3.5.5h2' stroke='%23707070' fill='none'/%3E%3C/svg%3E") no-repeat left bottom,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='9'%3E%3Cpath d='M10.5 0v5.5H2M4.5 3L2 5.5 4.5 8' stroke='%23000' fill='none'/%3E%3C/svg%3E") no-repeat right bottom; }
+[dir=rtl] .page.see :is(h1, h2, p, li, .note, .cta)::after { background-position: right bottom, left bottom; }
+
+/* the secondary language's runs in See commands: Tag's grey (LTGRAY), drawn in logical order in
+   the paragraph's direction */
+.page.see .fl { background: #c0c0c0; unicode-bidi: bidi-override; }
+
+/* a new text: TAG.INI [DEFAULTS]: 12 pt Hebrew / 10 pt English, leading 14 pt, LL 12 cm */
+.page.newtext { width: 12cm; padding-top: 8px; min-height: calc(100% - 8px); font: 16px/18.67px Tahoma, Arial, sans-serif; cursor: text; }
+.page.newtext.en { font-size: 13.33px; }
+.page.newtext p { margin: 0; position: relative; }
+.page.newtext p.empty > br { display: none; }
+.page.newtext p.empty { min-height: 18.67px; }
+
+/* the code combo: Tag's style combo, owner-drawn rows of code, ¶ (#80bcff) and {name} */
+.instr .codes { flex: 1 1 160px; min-width: 90px; max-width: 260px; cursor: default; }
+.instr .font, .instr .weight { cursor: default; }
+.instr .codes .field { display: flex; gap: 5px; align-items: center; overflow: hidden; white-space: nowrap; width: 100%; }
+.codes .code { font: bold 11px Tahoma, sans-serif; min-width: 14px; }
+.codes .pil { color: #80bcff; font-weight: bold; }
+.codes .name { color: #000; }
+/* the combos' lists: Tag's owner-drawn combo lists (white, 1 px black, rows 16 px, the current one
+   and the one under the mouse in the highlight colour) */
+.droplist { position: fixed; z-index: 45; max-height: 50vh; overflow-y: auto; background: #fff; border: 1px solid #000; font: var(--classic); }
+.droplist[hidden] { display: none; }
+.droplist .row { display: flex; gap: 5px; align-items: center; height: 16px; padding: 0 4px; white-space: nowrap; cursor: default; }
+.droplist .row:hover, .droplist .row.cur { background: #0078d7; color: #fff; }
+.droplist .row:hover .name, .droplist .row.cur .name { color: #fff; }
+.droplist .code { font: bold 11px Tahoma, sans-serif; min-width: 14px; }
+.droplist .pil { color: #80bcff; font-weight: bold; }
+.instr .combo .field { overflow: hidden; white-space: nowrap; }
+/* the menu's key column and submenu arrow, as Tag's menus (the key right-aligned; mirrored in Hebrew) */
+.pull button { display: grid; grid-template-columns: 1fr auto 10px; gap: 0 18px; }
+.pull .key { color: inherit; text-align: end; direction: ltr; }
+.pull .sub { width: 0; height: 0; align-self: center; justify-self: end; border-block: 4px solid transparent; border-inline-start: 4px solid currentColor; }
+.status { cursor: default; }
+
+/* status bar: white; the fields at the language's start, the path at its end, cm at the right */
+.status { flex: none; height: 20px; display: flex; align-items: center; gap: 10px; padding: 0 2px 0 6px; background: #fff; border-top: 1px solid #646464; direction: ltr; white-space: nowrap; overflow: hidden; }
+.status .path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+.status .fields { display: flex; gap: 8px; }
+.status .fields b { font-weight: bold; }
+.status .cm { font-size: 9px; padding: 0 3px; height: 15px; display: inline-flex; align-items: center; background: #c0c0c0; flex: none; }
+.status.he .path { order: 0; text-align: left; }
+.status.he .fields { order: 1; }
+.status.en .path { order: 1; text-align: right; }
+.status.en .fields { order: 0; }
+.status .cm { order: 2; }
+
+/* ---- windows over the app: the dialog and message boxes */
+#layer { position: fixed; inset: 0; z-index: 50; display: none; }
+#layer.on { display: block; }
+/* each window its own stacking context, so a message box is above the whole dialog */
+.dlg, .msg { position: absolute; }
+.dlg { z-index: 1; }
+.msg { z-index: 2; }
+
+/* Windows 10 chrome (the default skin) */
+.w10 { background: var(--face); border: 1px solid #888; box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.28); font: var(--modern); }
+/* a modal window flashing (a click outside it): Windows 10 swaps active and inactive looks */
+.w10.inactive { border-color: #bbb; box-shadow: 0 0 0 1px rgba(0,0,0,.03), 0 4px 12px rgba(0,0,0,.18); }
+.w10.inactive > .tb { color: #999; }
+.w10 > .tb { height: 30px; display: flex; align-items: center; background: #fff; user-select: none; touch-action: none; cursor: default; }
+.w10 > .tb .tt { flex: 1; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w10 > .tb .x { width: 46px; height: 30px; border: 0; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M0 0l10 10M10 0L0 10' stroke='%23000'/%3E%3C/svg%3E") no-repeat center; }
+.w10 > .tb .x:hover { background-color: #e81123; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M0 0l10 10M10 0L0 10' stroke='%23fff'/%3E%3C/svg%3E"); }
+
+.client { position: relative; overflow: hidden; }
+.w10 .client { background: var(--face); }
+.client .c { position: absolute; }
+.client .c > * { margin: 0; }
+.client .pg { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.client .pg > * { pointer-events: auto; }
+.client .pg[hidden] { display: none; }
+.client > .c, .client > .static { z-index: 3; }
+.static { white-space: pre-wrap; line-height: 1.25; overflow: hidden; }
+.dis, .dis label { color: #6d6d6d; }
+.client :disabled { pointer-events: none; }
+.client .full { width: 100%; height: 100%; min-width: 0; min-height: 0; }
+.client .check { display: flex; align-items: center; height: 100%; gap: 5px; }
+.client .check label { white-space: nowrap; overflow: hidden; }
+.client fieldset.group { position: absolute; margin: 0; padding: 0; pointer-events: none; min-width: 0; }
+.client fieldset.group legend { padding: 0 2px; margin-inline-start: 6px; }
+.client .updown { display: flex; flex-direction: column; height: 100%; }
+.client .updown button { flex: 1; min-width: 0; min-height: 0; padding: 0; font-size: 6px; line-height: 1; }
+.client input[type=range] { width: 100%; margin: 0; }
+.client .tabstrip { position: absolute; z-index: 3; display: flex; margin: 0; padding: 0 2px; list-style: none; }
+.client .tabbox { position: absolute; z-index: 2; }
+
+/* Windows 10 controls (comctl32 6 under Windows 10) */
+.w10 .tabbox { background: #fff; border: 1px solid #d9d9d9; }
+.w10 .tabstrip button { height: 21px; margin-top: 2px; padding: 0 6px; border: 1px solid #d9d9d9; border-bottom: 0; margin-inline-end: -1px; background: #f0f0f0; }
+.w10 .tabstrip button:hover { background: #d8eaf9; border-color: #3c7fb1; }
+.w10 .tabstrip button[aria-selected=true] { background: #fff; height: 23px; margin-top: 0; position: relative; z-index: 1; padding: 0 8px; margin-inline: -2px -1px; border-color: #d9d9d9; }
+.w10 button.push, .w10 .updown button, .w10 select { background: #e1e1e1; border: 1px solid #adadad; border-radius: 0; }
+.w10 button.push:hover, .w10 .updown button:hover, .w10 select:hover { background: #e5f1fb; border-color: var(--accent); }
+.w10 button.push:active, .w10 .updown button:active { background: #cce4f7; border-color: #005499; }
+.w10 button.push.default { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.w10 button.push:disabled, .w10 select:disabled, .w10 .updown button:disabled { background-color: #ccc; border-color: #bfbfbf; color: #838383; box-shadow: none; }
+.w10 select { appearance: none; padding: 0 22px 0 4px; font: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M.5.5l4 4 4-4' stroke='%23000' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; }
+.w10[dir=rtl] select { padding: 0 4px 0 22px; background-position: left 6px center; }
+.w10 select:disabled { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M.5.5l4 4 4-4' stroke='%23838383' fill='none'/%3E%3C/svg%3E"); }
+.w10 input[type=text], .w10 input[type=password] { background: #fff; border: 1px solid #7a7a7a; padding: 0 3px; font: inherit; outline: 0; }
+.w10 input[type=text]:hover, .w10 input[type=password]:hover { border-color: #171717; }
+.w10 input[type=text]:focus, .w10 input[type=password]:focus { border-color: var(--accent); }
+.w10 input[type=text]:disabled, .w10 input[type=password]:disabled { background: #f0f0f0; border-color: #ccc; color: #6d6d6d; }
+.w10 input[type=text][readonly] { background: #f0f0f0; border-color: #ccc; }
+.w10 input[type=checkbox], .w10 input[type=radio] { appearance: none; flex: none; width: 13px; height: 13px; margin: 0; border: 1px solid #333; background: #fff; display: grid; place-content: center; }
+.w10 input[type=radio] { border-radius: 50%; }
+.w10 input[type=checkbox]:checked::before { content: ""; width: 9px; height: 7px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='7'%3E%3Cpath d='M.5 3.5l3 3 5-6' stroke='%23000' stroke-width='1.4' fill='none'/%3E%3C/svg%3E"); }
+.w10 input[type=radio]:checked::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #333; }
+.w10 input:is([type=checkbox],[type=radio]):hover { border-color: var(--accent); }
+.w10 input:is([type=checkbox],[type=radio]):hover:checked::before { filter: none; }
+.w10 input:is([type=checkbox],[type=radio]):disabled { border-color: #bcbcbc; }
+.w10 input[type=radio]:disabled:checked::before { background: #bcbcbc; }
+.w10 input[type=checkbox]:disabled:checked::before { opacity: .35; }
+.w10 fieldset.group { border: 1px solid #dcdcdc; }
+.w10 input[type=range] { accent-color: var(--accent); }
+.w10 button:focus-visible, .w10 select:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+
+/* Windows 7: 7.css (scoped to .win7) draws the controls and the frame */
+.win7.dlg, .win7.msg { font: 9pt "Segoe UI", Tahoma, sans-serif; }
+.win7 .client { background: #f0f0f0; }
+.win7 .tabbox { background: #fff; border: 1px solid #898c95; }
+.win7 .tabstrip { padding: 0; }
+.win7 .client input[type=checkbox] + label, .win7 .client input[type=radio] + label { line-height: 16px; }
+.win7 .client .check { gap: 0; }
+.win7 .client .check input { position: absolute; width: 0; height: 0; margin: 0; }
+.win7 .client select { min-height: 0; height: 100%; }
+.win7 .client button.push { min-width: 0; min-height: 0; padding: 0 4px; }
+.win7[dir=rtl] input[type=checkbox] + label, .win7[dir=rtl] input[type=radio] + label { padding-left: 0; padding-right: 18px; }
+.win7[dir=rtl] input[type=checkbox] + label::before, .win7[dir=rtl] input[type=radio] + label::before { left: auto; right: 0; }
+.win7[dir=rtl] input[type=checkbox] + label::after, .win7[dir=rtl] input[type=radio] + label::after { left: auto; right: 3px; }
+.win7 .title-bar { touch-action: none; user-select: none; }
+
+/* message box */
+.msg { max-width: min(440px, calc(100vw - 32px)); }
+.msg .body { display: flex; gap: 12px; padding: 20px 20px 18px; white-space: pre-wrap; background: #fff; }
+.msg .body svg { width: 32px; height: 32px; flex: none; }
+.msg .buttons { display: flex; justify-content: flex-end; padding: 10px 12px; background: #f0f0f0; border-top: 1px solid #dfdfdf; }
+.msg .buttons button { min-width: 75px; height: 23px; }
+
+/* Tag's msg box: a script dialog on #e9e9e9, the text centred and bold, OK below */
+.tagmsg { min-width: 300px; max-width: min(520px, calc(100vw - 32px)); }
+.tagmsg .tagmsg-body { background: #e9e9e9; padding: 22px 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 18px; font: 13px Tahoma, sans-serif; }
+.tagmsg .text { text-align: center; white-space: pre-wrap; word-break: break-word; }
+.tagmsg .text b { font-weight: bold; }
+.tagmsg .buttons { padding: 0; background: none; border: 0; justify-content: center; }
+.tagmsg .tb .tt:empty::before { content: "\00a0"; }
+
+/* Tag's dialogs from their templates: MS Sans Serif 8 */
+.tagdlg .client { font: 11px "Microsoft Sans Serif", Tahoma, sans-serif; }
+.tagdlg .client .static { line-height: 13px; white-space: nowrap; }
+.tagdlg .sunkfield { background: #fff; border: 1px solid #7a7a7a; padding: 0 2px; text-align: end; }
+.tagicon.portrait, .tagicon.landscape { background: no-repeat center / contain
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4.5.5h8l3 3v16h-11z' fill='%23fff' stroke='%23000'/%3E%3Cpath d='M7 6h6M7 9h6M7 12h6M7 15h4' stroke='%23000'/%3E%3C/svg%3E"); }
+.tagicon.landscape { transform: rotate(-90deg); }
+
+/* About, in Tag's About box's spirit: Tag's message box (no caption, #e9e9e9, bold system font,
+   each line centred, OK 63 x 24 under them) */
+.tagabout .aboutbody { background: #e9e9e9; padding: 3px 11px 6px; min-width: 185px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.tagabout .lines { font: bold 12px/16px Tahoma, "Microsoft Sans Serif", sans-serif; text-align: center; padding-top: 6px; }
+.tagabout .lines div:first-child { font-size: 14px; }
+.tagabout button.push { width: 63px; height: 24px; }
+
+/* tooltip: Windows 10's */
+#tip { position: fixed; z-index: 100; max-width: 360px; background: #fff; color: #575757; border: 1px solid #767676; padding: 3px 7px 4px;
+  font: var(--modern); white-space: pre-wrap; pointer-events: none; box-shadow: 1px 1px 3px rgba(0,0,0,.2); }
+[data-skin="7"] #tip { background: linear-gradient(#fff, #e4e5f0); color: #000; border-radius: 2px; }
+
+/* ---- Windows 7: Tag's caption is 7.css's title bar; the frame, the menus and the MDI child as
+   Windows 7 draws them */
+[data-skin="7"] .app { background: #b9d1ea; border: 1px solid #555; border-radius: 6px 6px 0 0; padding: 0 6px 6px;
+  background: linear-gradient(#c3d7ee, #a9c3e3 120px, #b9d1ea); }
+[data-skin="7"] .caption { height: 28px; background: none; }
+.caption.win7 { display: block; }
+.caption.win7 .title-bar { height: 28px; border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0 0 0 2px; }
+.caption.win7 .title-bar-text { display: flex; align-items: center; padding-top: 0; }
+[data-skin="7"] .child { border-radius: 6px 6px 0 0; }
+[data-skin="7"] .child.max { border-radius: 0; }
+[data-skin="7"] .child-caption .child-title, [data-skin="7"] .iconic .child-title { text-align: start; }
+
+@media (max-width: 700px) {
+  .instr .font, .instr .weight, .instr .size, .instr .spin, .instr .it, .instr .un { display: none; }
+  .status .fields span:not(:first-child) { display: none; }
+}
