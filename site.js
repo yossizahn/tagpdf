@@ -5,7 +5,9 @@
 
 const CONFIG = {
   version: "0.1.0",               // install/setup.iss AppVersion
-  download: "TagPDFSetup.exe",    // where the installer is published (to be decided)
+  // the installer: the release's file (a pre-release, so not releases/latest, which skips them)
+  download: "https://github.com/yossizahn/tagpdf/releases/download/v0.1.0/TagPDFSetup.exe",
+  beta: true,
 };
 
 const D = window.DIALOG;
@@ -56,7 +58,7 @@ const T = {
     notHere: "This button works in Tag. On the web page nothing opens.",
     saved: "On the web page nothing is saved.\nIn Tag, OK writes WINPDF.INI in the Tag folder.",
     doc: `
-<h1>Tag PDF</h1>
+<h1>Tag PDF<span class="beta" contenteditable="false">{beta}</span></h1>
 <p>A PDF printer for Tag (תג) 3.99 and TagXP. Print a book from Tag as you always do, pick <b>Tag PDF</b>, and get a PDF.</p>
 <div class="cta">
   <button class="default" data-act="download">Download TagPDFSetup.exe</button>
@@ -108,7 +110,7 @@ const T = {
     notHere: "הכפתור הזה פועל בתג. בדף האינטרנט שום דבר לא נפתח.",
     saved: "בדף האינטרנט שום דבר לא נשמר.\nבתג, אישור כותב את WINPDF.INI בתיקיית תג.",
     doc: `
-<h1>Tag PDF</h1>
+<h1>Tag PDF<span class="beta" contenteditable="false">{beta}</span></h1>
 <p>מדפסת PDF לתג 3.99 ול-TagXP. מדפיסים ספר מתג כמו תמיד, בוחרים <b>Tag PDF</b>, ומקבלים PDF.</p>
 <div class="cta">
   <button class="default" data-act="download">הורד את TagPDFSetup.exe</button>
@@ -137,7 +139,7 @@ const T = {
   },
 };
 const t = (k) => T[lang][k];
-const tv = (k) => t(k).replaceAll("{v}", CONFIG.version);
+const tv = (k) => t(k).replaceAll("{v}", CONFIG.version).replaceAll("{beta}", CONFIG.beta ? (lang === "he" ? "בטא" : "BETA") : "");
 const rtl = () => lang === "he";
 
 // "&File" → F underlined; "&&" is a plain "&"
@@ -484,8 +486,8 @@ function newTextDialog() {
 function aboutBox() {
   const he = rtl();
   const lines = he
-    ? ["Tag PDF", "גירסה: " + CONFIG.version, "לתג 3.99 ומטה"]
-    : ["Tag PDF", "Version: " + CONFIG.version, "For Tag 3.99 and lower"];
+    ? ["Tag PDF", "גירסה: " + CONFIG.version + (CONFIG.beta ? " (בטא)" : ""), "לתג 3.99 ומטה"]
+    : ["Tag PDF", "Version: " + CONFIG.version + (CONFIG.beta ? " (beta)" : ""), "For Tag 3.99 and lower"];
   const close = () => { outer.remove(); layerState(); focusText(); };
   const [outer, body] = windowShell("", "msg tagabout", close);
   outer.dir = he ? "rtl" : "ltr";
@@ -684,7 +686,7 @@ function markCodes(doc) {
   for (const [sel, code] of CODE_OF) for (const n of doc.querySelectorAll(sel)) n.dataset.code = code;
   markForeign(doc);
   const walk = document.createTreeWalker(doc, NodeFilter.SHOW_TEXT, {
-    acceptNode: (n) => n.parentElement.closest(".cta") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    acceptNode: (n) => n.parentElement.closest(".cta, .beta") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
   });
   const nodes = [];
   while (walk.nextNode()) nodes.push(walk.currentNode);
@@ -703,7 +705,7 @@ function markForeign(doc) {
     ? /[A-Za-z0-9][A-Za-z0-9 .,:;'"()\/_+&%-]*[A-Za-z0-9)]|[A-Za-z]/g
     : /[\u05d0-\u05ea][\u05d0-\u05ea\u0591-\u05c7 "'-]*[\u05d0-\u05ea]|[\u05d0-\u05ea]/g;
   const walk = document.createTreeWalker(doc, NodeFilter.SHOW_TEXT, {
-    acceptNode: (n) => n.parentElement.closest(".cta, code") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    acceptNode: (n) => n.parentElement.closest(".cta, code, .beta") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
   });
   const nodes = [];
   while (walk.nextNode()) nodes.push(walk.currentNode);
@@ -1075,15 +1077,16 @@ function statusUpdate() {
 function caption() {
   const cap = document.getElementById("caption");
   const text = "Tag PDF" + (active?.state === "max" ? " - [" + active.short + "]" : "");
+  const badge = () => CONFIG.beta ? [el("span", { class: "beta" }, rtl() ? "בטא" : "BETA")] : [];
   const act = { onclick: () => msgbox(t("exitText")) };
   if (skin === "7") {
     cap.className = "caption win7";
     cap.replaceChildren(el("div", { class: "title-bar active" },
-      el("div", { class: "title-bar-text" }, el("span", { class: "app-icon" }), text),
+      el("div", { class: "title-bar-text" }, el("span", { class: "app-icon" }), text, ...badge()),
       el("div", { class: "title-bar-controls" }, el("button", { "aria-label": "Minimize", tabindex: "-1" }), el("button", { "aria-label": "Maximize", tabindex: "-1" }), el("button", { "aria-label": "Close", tabindex: "-1", ...act }))));
   } else {
     cap.className = "caption";
-    cap.replaceChildren(el("span", { class: "app-icon" }), el("span", { class: "caption-text" }, text),
+    cap.replaceChildren(el("span", { class: "app-icon" }), el("span", { class: "caption-text" }, text, ...badge()),
       el("span", { class: "caption-buttons" }, el("button", { class: "cb min", tabindex: "-1", "aria-label": "Minimize" }), el("button", { class: "cb max", tabindex: "-1", "aria-label": "Maximize" }), el("button", { class: "cb close", tabindex: "-1", "aria-label": "Close", ...act })));
   }
 }

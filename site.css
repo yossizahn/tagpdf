@@ -330,6 +330,12 @@ button.close { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tagabout .lines div:first-child { font-size: 14px; }
 .tagabout button.push { width: 63px; height: 24px; }
 
+/* the beta badge: a small boxed word after the name (the heading, the caption) */
+.beta { display: inline-block; margin-inline-start: 8px; padding: 1px 5px; vertical-align: middle; font: bold 10px/12px Tahoma, sans-serif;
+  letter-spacing: .5px; color: #fff; background: #c42b1c; border-radius: 2px; user-select: none; -webkit-user-select: none; }
+h1 .beta { font-size: 12px; line-height: 16px; vertical-align: 6px; }
+.page h1 .beta::after { content: none !important; }
+
 /* tooltip: Windows 10's */
 #tip { position: fixed; z-index: 100; max-width: 360px; background: #fff; color: #575757; border: 1px solid #767676; padding: 3px 7px 4px;
   font: var(--modern); white-space: pre-wrap; pointer-events: none; box-shadow: 1px 1px 3px rgba(0,0,0,.2); }
