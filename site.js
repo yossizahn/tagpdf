@@ -69,7 +69,7 @@ const T = {
 <h2>What it does</h2>
 <ul>
   <li>Prints from any print dialog as usual: choose <b>Tag PDF</b> in the dialog's printer setup box or in File › Print setup.</li>
-  <li>The PDF looks exactly like printing via a virtual PDF printer you are used to using (e.g. PDF Creator). Fonts are subset and embedded correctly.</li>
+  <li>The PDF looks exactly like printing via a virtual PDF printer you are used to using. Fonts are subset and embedded correctly.</li>
   <li>Hebrew can be searched and copied, also in Tag's 8-bit fonts that other PDF printers don't support.</li>
   <li>Includes an advanced settings dialog triggered from Tag's own menu: <b>File › PDF settings</b>, in English or Hebrew.</li>
 </ul>
@@ -121,7 +121,7 @@ const T = {
 <h2>מה הוא עושה</h2>
 <ul>
   <li>מדפיס מכל חלון הדפסה כרגיל: בוחרים <b>Tag PDF</b> בחלון הגדרת המדפסת של החלון, או בקובץ › הגדרת מדפסת.</li>
-  <li>ה-PDF נראה בדיוק כמו הדפסה דרך מדפסת PDF וירטואלית שאתם רגילים אליה (למשל PDF Creator). הגופנים מוטמעים כראוי, רק האותיות שבשימוש.</li>
+  <li>ה-PDF נראה בדיוק כמו הדפסה דרך מדפסת PDF וירטואלית שאתם רגילים אליה. הגופנים מוטמעים כראוי, רק האותיות שבשימוש.</li>
   <li>אפשר לחפש ולהעתיק את העברית, גם בגופני 8 הסיביות של תג, שמדפסות PDF אחרות לא תומכות בהם.</li>
   <li>כולל חלון הגדרות מתקדם שנפתח מהתפריט של תג עצמו: <b>קובץ › הגדרות PDF</b>, באנגלית או בעברית.</li>
 </ul>
@@ -511,8 +511,6 @@ function aboutBox() {
 // orientation, and Tag's own "D.p.i. for line breaks". Nothing is kept: OK and Cancel close it.
 const PRINTERS = [
   { name: "Tag PDF", type: "Tag PDF", where: "TAGPDF:", comment: "", dpi: 600 },
-  { name: "Bullzip PDF Printer", type: "Bullzip PDF Printer", where: "BULLZIP", comment: "", dpi: 300 },
-  { name: "Microsoft Print to PDF", type: "Microsoft Print To PDF", where: "PORTPROMPT:", comment: "", dpi: 600 },
   { name: "Microsoft XPS Document Writer", type: "Microsoft XPS Document Writer v4", where: "PORTPROMPT:", comment: "", dpi: 600 },
 ];
 function printSetupDialog() {
