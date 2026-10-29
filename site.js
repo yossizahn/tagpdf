@@ -60,19 +60,23 @@ const T = {
     saved: "On the web page nothing is saved.\nIn Tag, OK writes WINPDF.INI in the Tag folder.",
     doc: `
 <h1>Tag PDF<span class="beta" contenteditable="false">{beta}</span></h1>
-<p>A PDF printer for Tag (תג). Print a book from Tag as you always do, pick <b>Tag PDF</b> as the printer, and get a PDF.</p>
+<p>A PDF export driver for Tag (תג), deeply integrated with Tag.</p>
 <div class="cta">
   <button class="default" data-act="download">Download TagPDFSetup.exe</button>
   <button data-act="settings">See the PDF settings...</button>
   <span class="small">Version {v} · Windows 10 or later</span>
 </div>
-<h2>What it does</h2>
+<h2>Background</h2>
+<p>Printing in Tag goes through “drivers”. A driver's job is to turn Tag's drawing commands into drawing commands the printer understands, and to send them to the selected printer.</p>
+<p>Tag comes with two built-in drivers, winprint and ps:</p>
 <ul>
-  <li>Prints from any print dialog as usual: choose <b>Tag PDF</b> in the dialog's printer setup box or in File › Print setup.</li>
-  <li>The PDF looks exactly like printing via a virtual PDF printer you are used to using. Fonts are subset and embedded correctly.</li>
-  <li>Hebrew can be searched and copied, also in Tag's 8-bit fonts that other PDF printers don't support.</li>
-  <li>Includes an advanced settings dialog triggered from Tag's own menu: <b>File › PDF settings</b>, in English or Hebrew.</li>
+  <li><b>ps</b> is the older driver. It turns Tag's drawing commands into PostScript commands and sends them to a PostScript printer through the configured port.</li>
+  <li><b>winprint</b> is the newer driver. It turns Tag's drawing commands into drawing commands of GDI, the Windows graphics API, which is made for drawing both on the screen and on printers.</li>
 </ul>
+<p>Today most printing in the industry is done from PDF files. Tag users make PDF files with a virtual PDF printer, such as Adobe's commercial one or a free one (PDF Creator, for example). To Windows and to Tag these look like an ordinary printer, and printing to them is done with GDI commands, as to any other printer.</p>
+<p>These tools have served Tag users well for many years, and they work well. But they have no deep integration with Tag. For example, they don't understand the text encoding of some of Tag's fonts. They don't know the page number, or where a new chapter begins. Another drawback is gradients: GDI commands give a pixelated gradient, while a PDF can show a smooth one.</p>
+<p><b>Tag PDF</b> solves all of these.</p>
+<p>Tag PDF is a driver that understands Tag's drawing commands, and also talks to Tag while it prints to get rich metadata about the file. That lets it make bookmarks, links (planned) and correct page numbers, and encode the text correctly, so it can be searched and copied in the PDF. Smooth gradients are planned too.</p>
 <h2>Install</h2>
 <ol>
   <li>Download <b>TagPDFSetup.exe</b> and run it. Tag may need to be closed (if <code>winprint.dll</code> is in use).</li>
@@ -112,19 +116,23 @@ const T = {
     saved: "בדף האינטרנט שום דבר לא נשמר.\nבתג, אישור כותב את WINPDF.INI בתיקיית תג.",
     doc: `
 <h1>Tag PDF<span class="beta" contenteditable="false">{beta}</span></h1>
-<p>מדפסת PDF לתג. מדפיסים ספר מתג כמו תמיד, בוחרים במדפסת <b>Tag PDF</b>, ומקבלים PDF.</p>
+<p>דרייבר לייצוא PDF מתג, עם אינטגרציה עמוקה עם תג.</p>
 <div class="cta">
   <button class="default" data-act="download">הורד את TagPDFSetup.exe</button>
   <button data-act="settings">הצג את הגדרות ה-PDF...</button>
   <span class="small">גרסה {v} · Windows 10 ומעלה</span>
 </div>
-<h2>מה הוא עושה</h2>
+<h2>רקע</h2>
+<p>ההדפסה בתג מתבצעת דרך ”דרייברים“. התפקיד של הדרייבר הוא להמיר את פקודות הציור של תג לפקודות ציור שהמדפסת מבינה, ולשלוח את הפקודות למדפסת שנבחרה.</p>
+<p>תג מגיע עם שני דרייברים מובנים: winprint ו-ps.</p>
 <ul>
-  <li>מדפיס מכל חלון הדפסה כרגיל: בוחרים <b>Tag PDF</b> בחלון הגדרת המדפסת של החלון, או בקובץ › הגדרת מדפסת.</li>
-  <li>ה-PDF נראה בדיוק כמו הדפסה דרך מדפסת PDF וירטואלית שאתם רגילים אליה. הגופנים מוטמעים כראוי, רק האותיות שבשימוש.</li>
-  <li>אפשר לחפש ולהעתיק את העברית, גם בגופני 8 הסיביות של תג, שמדפסות PDF אחרות לא תומכות בהם.</li>
-  <li>כולל חלון הגדרות מתקדם שנפתח מהתפריט של תג עצמו: <b>קובץ › הגדרות PDF</b>, באנגלית או בעברית.</li>
+  <li><b>ps</b> הוא הדרייבר היותר ישן, והוא ממיר פקודות ציור של תג לפקודות PostScript, ושולח אותן למדפסת PostScript דרך הפורט שהוגדר.</li>
+  <li><b>winprint</b> הוא דרייבר יותר חדש, והוא ממיר פקודות ציור של תג לפקודות ציור של GDI של Windows, שהוא ה-API הגרפי של ווינדוס שנועד לציור הן על המסך והן למדפסות.</li>
 </ul>
+<p>היום, רוב ההדפסה בשוק מתבצעת מקבצי PDF. הפתרון של משתמשי תג ליצירת קבצי PDF הוא להשתמש במדפסת PDF וירטואלית, כמו זו המסחרית של אדובי, או חינמית (לדוגמה PDF Creator) וכדומה. מדפסות אלו נראות לווינדוס ולתג כמו מדפסת רגילה, וההדפסה אליהן מתבצעת עם פקודות GDI כמו למדפסת רגילה.</p>
+<p>כלים אלו סיפקו את צרכי משתמשי תג במשך הרבה שנים טובות, והם עובדים בצורה טובה. אבל אין להם אינטגרציה עמוקה עם תג. למשל, הם לא מבינים את קידוד הטקסט של חלק מהגופנים של תג. הם לא יודעים מה מספר העמוד, ואיפה מתחיל פרק חדש. עוד חיסרון הוא ביחס לצביעת גרדיאנטים: פקודות GDI פולטות גרדיאנט מפוקסל, בעוד ש-PDF יכול להציג גרדיאנט חלק.</p>
+<p>כל בעיות אלו מגיעות לפתרון עם תוכנת <b>Tag PDF</b>.</p>
+<p>תוכנת Tag PDF היא דרייבר שמבין את פקודות הציור של תג, וגם מתקשר עם תג תוך כדי תהליך ההדפסה כדי לקבל מטה-דאטה עשיר על הקובץ. זה מאפשר לנו דברים כמו יצירת סימניות, קישורים (בתכנון) ומספרי עמודים נכונים, וקידוד טקסט נכון שמאפשר חיפוש והעתקה מקובץ ה-PDF. גם גרדיאנטים חלקים נמצאים בתכנון.</p>
 <h2>התקנה</h2>
 <ol>
   <li>הורידו את <b>TagPDFSetup.exe</b> והריצו אותו. ייתכן שתצטרכו לסגור את תג (אם <code>winprint.dll</code> בשימוש).</li>
