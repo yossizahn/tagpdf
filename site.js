@@ -1128,7 +1128,8 @@ function statusUpdate() {
   const el0 = focus.nodeType === 1 ? focus : focus.parentElement;
 
   // the code combo: the code of the caret's paragraph (a new text has none)
-  const para = el0.closest(".page > *") || doc.firstElementChild || doc;
+  // (the nearest coded element: a list item's code, not its list's, which has none)
+  const para = el0.closest("[data-code]") || el0.closest(".page > *") || doc.firstElementChild || doc;
   const code = para.dataset?.code || "";
   if (cf && cf.dataset.code !== code) {
     cf.dataset.code = code;
