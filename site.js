@@ -225,6 +225,11 @@ const ACTS = {
   newText() { newTextDialog(); },
   run() { runCommand(document.getElementById("cmd").value); },
 };
+// every menu command and page button goes through ACTS: each one is an "act" event in the
+// statistics (Umami; sent with keepalive, so Download's still arrives as the page leaves)
+for (const [name, f] of Object.entries(ACTS)) {
+  ACTS[name] = (...a) => { window.umami?.track("act", { act: name }); return f(...a); };
+}
 
 // ---- the command line: `run file "winpdfset.prg"` (what File > PDF settings runs) and `msg`;
 // anything else gets Tag's error box. Errors are Tag's own texts.

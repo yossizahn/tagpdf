@@ -8,6 +8,15 @@
 <link rel="icon" href="favicon.ico">
 <link id="skin7" rel="stylesheet" href="https://unpkg.com/7.css@0.21.1/dist/7.scoped.css" disabled>
 <link rel="stylesheet" href="site.css">
+<script>
+// #notrack: this browser no longer counts in the statistics (Umami reads umami.disabled on
+// every send); #track counts it again
+try {
+  if (location.hash === "#notrack") localStorage.setItem("umami.disabled", "1");
+  else if (location.hash === "#track") localStorage.removeItem("umami.disabled");
+} catch { /* private window */ }
+</script>
+<script defer src="https://stats.xn--eebajf.xn--9dbq2a/script.js" data-website-id="29282699-efe4-4832-bca1-6541416de2d0" data-domains="tagpdf.yossizahn.tech"></script>
 </head>
 <body>
 <div class="app" id="app">
