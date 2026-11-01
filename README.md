@@ -1,3 +1,7 @@
 # Tag PDF
 
-The website of Tag PDF, a PDF printer for Tag (תג): https://tagpdf.yossizahn.tech/
+Tag PDF, a PDF printer for Tag (תג), is now on the Tag Tools website:
+https://tagtools.yossizahn.tech/#w=index;tagpdf
+
+This site (https://tagpdf.yossizahn.tech/) only redirects there. The installer is still
+released here: see Releases.
